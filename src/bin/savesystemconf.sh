@@ -1,10 +1,10 @@
 #!/bin/bash
 ## -----------------------------------------------------------------------------
 ## Linux Scripts.
-## Start, stop or disable a list of services.
+## Save host-specific system-wide configuration.
 ##
-## @package ojullien\bash\bin\manageservices
-## @license MIT <https://github.com/ojullien/bash-manageservices/blob/master/LICENSE>
+## @package ojullien\bash\bin
+## @license MIT <https://github.com/ojullien/bash-savesystemconf/blob/master/LICENSE>
 ## -----------------------------------------------------------------------------
 #set -o errexit
 set -o nounset
@@ -34,16 +34,21 @@ readonly m_DIR_REALPATH="$(realpath "$(dirname "$0")")"
 . "${m_DIR_SYS}/option.sh"
 # shellcheck source=/dev/null
 . "${m_DIR_SYS}/config.sh"
+Config::load "savesystemconf"
 # shellcheck source=/dev/null
-. "${m_DIR_SYS}/service.sh"
-Config::load "manageservices"
-# shellcheck source=/dev/null
-. "${m_DIR_APP}/manageservices/app.sh"
+. "${m_DIR_APP}/savesystemconf/app.sh"
 
 ## -----------------------------------------------------------------------------
 ## Help
 ## -----------------------------------------------------------------------------
-((m_OPTION_SHOWHELP)) && ManageServices::showHelp && exit 0
+((m_OPTION_SHOWHELP)) && SaveSystemConf::showHelp && exit 0
+(( 0==$# )) && SaveSystemConf::showHelp && exit 1
+
+## -----------------------------------------------------------------------------
+## Trace
+## -----------------------------------------------------------------------------
+Constant::trace
+SaveSystemConf::trace
 
 ## -----------------------------------------------------------------------------
 ## Start
@@ -53,46 +58,39 @@ String::notice "Today is: $(date -R)"
 String::notice "The PID for $(basename "$0") process is: $$"
 Console::waitUser
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------
 ## Parse the app options and arguments
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------
 declare -i iReturn=1
+declare sPWD sDestination="${m_SAVESYSTEMCONF_DESTINATION_DEFAULT}"
+sPWD=$(pwd)
 
-if (( "$#" )); then
+while (( "$#" )); do
     case "$1" in
-    stop)
+    -d|--destination) # app option
+        sDestination="$2"
+        shift 2
+        FileSystem::checkDir "The destination directory is set to:\t${sDestination}" "${sDestination}"
+        ;;
+    --*|-*) # unknown option
+        shift
         String::separateLine
-        Service::stopServices ${m_SERVICES_STOP}
+        SaveSystemConf::showHelp
+        exit 0
+        ;;
+    *) # We presume its a /etc/conf directory
+        String::separateLine
+        SaveSystemConf::save "$1" "${sDestination}"
         iReturn=$?
-        ;;
-    start)
-        String::separateLine
-        Service::startServices ${m_SERVICES_START}
-        iReturn=$?
-        ;;
-    disable)
-        String::separateLine
-        Service::disableServices ${m_SERVICES_DISABLE}
-        iReturn=$?
-        ;;
-    trace)
-        String::separateLine
-        Constant::trace
-        ManageServices::trace
-        iReturn=0
-        ;;
-    *) # unknown option
-        String::separateLine
-        ManageServices::showHelp
+        ((0!=iReturn)) && exit ${iReturn}
+        shift
+        Console::waitUser
         ;;
     esac
-else
-        String::separateLine
-        ManageServices::showHelp
-fi
+done
 
 ## -----------------------------------------------------------------------------
 ## END
 ## -----------------------------------------------------------------------------
 String::notice "Now is: $(date -R)"
-exit ${iReturn}
+exit 0
