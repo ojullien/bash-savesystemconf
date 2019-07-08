@@ -1,4 +1,4 @@
-# Bash-savesystemconf
+# Bash-SaveSystemConf
 
 Simple tool for saving host-specific system-wide configuration to a timestamped bz2 archive.
 
