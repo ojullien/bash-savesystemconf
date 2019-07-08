@@ -71,7 +71,6 @@ while (( "$#" )); do
         String::separateLine
         Constant::trace
         SaveSystemConf::trace
-        iReturn=0
         ;;
     --*|-*) # unknown option
         shift
