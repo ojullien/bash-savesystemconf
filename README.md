@@ -28,11 +28,12 @@ Usage: savesystemconf.sh [options] <directory 1> [directory 2 ...]
 
 options
   -d | --destination    Destination folder. The default is /home/<user>
-  -n | --no-display     Display mode. Nothing is displayed in terminal.
-  -l | --active-log     Log mode. Content outputs are logged in a file.
-  -w | --wait           Wait user. Wait for user input between actions.
   -h | --help           Show this help.
+  -l | --active-log     Log mode. Content outputs are logged in a file.
+  -n | --no-display     Display mode. Nothing is displayed in terminal.
+  -t | --trace          Display var and constants.
   -v | --version        Show the version.
+  -w | --wait           Wait user. Wait for user input between actions.
 ```
 
 ## Test

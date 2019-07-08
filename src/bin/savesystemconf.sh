@@ -45,12 +45,6 @@ Config::load "savesystemconf"
 (( 0==$# )) && SaveSystemConf::showHelp && exit 1
 
 ## -----------------------------------------------------------------------------
-## Trace
-## -----------------------------------------------------------------------------
-Constant::trace
-SaveSystemConf::trace
-
-## -----------------------------------------------------------------------------
 ## Start
 ## -----------------------------------------------------------------------------
 String::separateLine
@@ -71,6 +65,13 @@ while (( "$#" )); do
         sDestination="$2"
         shift 2
         FileSystem::checkDir "The destination directory is set to:\t${sDestination}" "${sDestination}"
+        ;;
+    -t|--trace)
+        shift
+        String::separateLine
+        Constant::trace
+        SaveSystemConf::trace
+        iReturn=0
         ;;
     --*|-*) # unknown option
         shift
